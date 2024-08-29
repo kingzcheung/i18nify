@@ -1,15 +1,16 @@
-use i18n_codegen::i18n;
+mod demo {
+    use i18n_codegen::i18n;
 
-
-fn main() {
-    i18n!("tests/doc_locales");
-
-    let r = Locale::En.hello_world();
-    
-    println!("{r}");
+    #[i18n(
+        folder = "/Users/kingzcheung/rust/i18n_codegen/tests/doc_locales",
+        start = "{",
+        end = "}"
+    )]
+    pub struct DocLocales;
 }
 
-
-fn example() {
-    // let r = Locale::En.hello_world();
+fn main() {
+    let name = demo::Name("John");
+    println!("{:?}", demo::Locale::En.hello_world());
+    dbg!(demo::Locale::En.greeting(name));
 }
