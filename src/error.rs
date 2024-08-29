@@ -36,8 +36,8 @@ impl fmt::Display for Error {
             Error::JsonParsing(e) => write!(f, "{}", e),
             Error::ProcMacroInput(e) => write!(f, "{}", e),
             Error::Io(e) => write!(f, "{}", e),
-            Error::MissingEnvVar { name, .. } => {
-                write!(f, "Missing environment variable `{}`", name)
+            Error::MissingEnvVar { name, inner_error } => {
+                write!(f, "Missing environment variable `{}`,`{}`", name,inner_error)
             }
             Error::DirectoryInLocalesFolder => {
                 write!(f, "The locales directory should not contain other folders")

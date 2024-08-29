@@ -120,7 +120,7 @@ mod error;
 mod placeholder_parsing;
 
 use error::{Error, MissingKeysInLocale, Result};
-use heck::CamelCase;
+use heck::{ToUpperCamelCase};
 use placeholder_parsing::find_placeholders;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
@@ -297,7 +297,7 @@ fn gen_i18n_struct(translations: Translations, out: &mut TokenStream) {
             }
 
             let args = placeholders.iter().map(|placeholder| {
-                let type_name = ident(&placeholder.to_string().to_camel_case());
+                let type_name = ident(&placeholder.to_string().to_upper_camel_case());
                 quote! { #placeholder: #type_name<'_> }
             });
 
@@ -345,7 +345,7 @@ fn gen_i18n_struct(translations: Translations, out: &mut TokenStream) {
         .collect::<Vec<_>>();
 
     let placeholder_newtypes = all_unique_placeholders.into_iter().map(|placeholder| {
-        let placeholder = ident(&placeholder.to_string().to_camel_case());
+        let placeholder = ident(&placeholder.to_string().to_upper_camel_case());
         quote! {
             #[allow(missing_docs)]
             pub struct #placeholder<'a>(pub &'a str);
@@ -372,9 +372,9 @@ fn build_translations_from_files(
     let keys_per_locale = paths_and_contents
         .iter()
         .map(|(path, contents)| {
-            let locale_name = locale_name_from_translations_file_path(&path)?;
+            let locale_name = locale_name_from_translations_file_path(path)?;
 
-            let map = parse_translations_file(&contents)?;
+            let map = parse_translations_file(contents)?;
             let keys_in_file = build_keys_from_json(map, config, &locale_name)?;
 
             let locale_and_keys = keys_in_file
@@ -407,7 +407,7 @@ fn build_translations_from_files(
 fn build_locale_names_from_files(file_paths: &[PathBuf]) -> Result<Vec<LocaleName>> {
     file_paths
         .iter()
-        .map(|file_path| locale_name_from_translations_file_path(&file_path))
+        .map(locale_name_from_translations_file_path)
         .collect()
 }
 
@@ -435,13 +435,13 @@ fn validate_translations(translations: &Translations) -> Result<()> {
     }
 }
 
-fn all_keys<'a>(translations: &'a Translations) -> HashSet<&'a Key> {
+fn all_keys(translations: &Translations) -> HashSet<&Key> {
     translations.keys().collect()
 }
 
-fn keys_per_locale<'a>(
-    translations: &'a Translations,
-) -> HashMap<&'a LocaleName, HashSet<&'a Key>> {
+fn keys_per_locale(
+    translations: &Translations,
+) -> HashMap<&LocaleName, HashSet<&Key>> {
     let mut acc = HashMap::new();
 
     for (key, translations_for_key) in translations {
@@ -488,7 +488,7 @@ fn find_locale_files<P: AsRef<Path>>(locales_path: P) -> Result<Vec<PathBuf>> {
 }
 
 fn parse_translations_file(contents: &str) -> Result<HashMap<&str, String>> {
-    serde_json::from_str(&contents).map_err(From::from)
+    serde_json::from_str(contents).map_err(From::from)
 }
 
 fn build_keys_from_json(
