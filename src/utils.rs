@@ -29,6 +29,7 @@ where
     Ok(paths)
 }
 
+#[allow(clippy::ptr_arg)]
 pub(crate) fn locale_name_from_translations_file_path(path: &PathBuf) -> Result<LocaleName> {
     let file_stem = path
         .file_stem()

@@ -5,8 +5,51 @@ pub enum Locale {
     Da,
 }
 #[allow(missing_docs)]
+pub struct Word<'a>(pub &'a str);
+#[allow(missing_docs)]
+pub struct Type<'a>(pub &'a str);
+#[allow(missing_docs)]
+pub struct One<'a>(pub &'a str);
+#[allow(missing_docs)]
 pub struct Name<'a>(pub &'a str);
+#[allow(missing_docs)]
+pub struct Two<'a>(pub &'a str);
 impl Locale {
+    #[allow(missing_docs)]
+    pub fn missing_interpolation_en(self, word_: Word<'_>) -> String {
+        match self {
+            Locale::En => format!("en foo",),
+            Locale::Da => format!("da foo {word}", word = word_.0),
+        }
+    }
+    #[allow(missing_docs)]
+    pub fn hello_newline(self) -> String {
+        match self {
+            Locale::En => format!("Hello\nWorld!"),
+            Locale::Da => format!("Hej\nVerden!"),
+        }
+    }
+    #[allow(missing_docs)]
+    pub fn rust_keyword(self, type_: Type<'_>) -> String {
+        match self {
+            Locale::Da => format!("hva så {type}", type = type_.0),
+            Locale::En => format!("yo {type}", type = type_.0),
+        }
+    }
+    #[allow(missing_docs)]
+    pub fn hello(self) -> String {
+        match self {
+            Locale::Da => format!("Hej, Verden!"),
+            Locale::En => format!("Hello, World!"),
+        }
+    }
+    #[allow(missing_docs)]
+    pub fn two_placeholders(self, one_: One<'_>, two_: Two<'_>) -> String {
+        match self {
+            Locale::Da => format!("da {one} {two}", one = one_.0, two = two_.0),
+            Locale::En => format!("en {one} {two}", one = one_.0, two = two_.0),
+        }
+    }
     #[allow(missing_docs)]
     pub fn greeting(self, name_: Name<'_>) -> String {
         match self {
@@ -15,10 +58,17 @@ impl Locale {
         }
     }
     #[allow(missing_docs)]
-    pub fn hello_world(self) -> String {
+    pub fn missing_interpolation_da(self, word_: Word<'_>) -> String {
         match self {
-            Locale::En => format!("Hello, World!"),
-            Locale::Da => format!("Hej, Verden!"),
+            Locale::En => format!("en foo {word}", word = word_.0),
+            Locale::Da => format!("da foo",),
+        }
+    }
+    #[allow(missing_docs)]
+    pub fn duplicate_placeholders(self, name_: Name<'_>) -> String {
+        match self {
+            Locale::En => format!("Hey {name}. Is your name {name}?", name = name_.0),
+            Locale::Da => format!("Hej {name}. Er dit navn {name}?", name = name_.0),
         }
     }
 }

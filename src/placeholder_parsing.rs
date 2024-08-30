@@ -45,19 +45,11 @@ enum Token<'a> {
 
 impl<'a> Token<'a> {
     fn is_start(&self) -> bool {
-        if let Token::PlaceholderStart = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, Token::PlaceholderStart)
     }
 
     fn is_end(&self) -> bool {
-        if let Token::PlaceholderEnd = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, Token::PlaceholderEnd)
     }
 
     fn token(&self) -> &str {

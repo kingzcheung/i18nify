@@ -1,6 +1,7 @@
 use std::{collections::{HashMap, HashSet}, fmt::Display};
 
 
+
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub(crate) struct Key(pub(crate) String);
 
@@ -35,7 +36,7 @@ impl Display for LocaleName {
     }
 }
 
-#[derive(Debug)]
+
 pub(crate) struct Config {
     pub(crate) open: String,
     pub(crate) close: String,

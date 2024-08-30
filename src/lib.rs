@@ -1,120 +1,18 @@
 //! Internationalization library based on code generation.
 //!
-//! By leveraging code generation we are able to prevent common bugs like typos in i18n keys,
-//! missing interpolations, or various mistakes between locales.
-//!
-//! It requires a directory with one JSON file per locale. Here is an example with English and
-//! Danish translations:
-//!
-//! ```json
-//! // tests/doc_locales/en.json
-//! {
-//!     "hello_world": "Hello, World!",
-//!     "greeting": "Hello {name}"
-//! }
-//!
-//! // tests/doc_locales/da.json
-//! {
-//!     "hello_world": "Hej, Verden!",
-//!     "greeting": "Hej {name}"
-//! }
-//! ```
-//!
-//! And in Rust:
-//!
-//! ```
-//! use i18n_codegen::i18n;
-//!
-//! i18n!("tests/doc_locales");
-//!
-//! fn main() {
-//!     assert_eq!("Hello, World!", Locale::En.hello_world());
-//!     assert_eq!("Hej, Verden!", Locale::Da.hello_world());
-//!
-//!     assert_eq!("Hello Bob", Locale::En.greeting(Name("Bob")));
-//!     assert_eq!("Hej Bob", Locale::Da.greeting(Name("Bob")));
-//! }
-//! ```
-//!
-//! ## What gets generated?
-//!
-//! This is what gets generated for the example above:
-//!
-//! ```
-//! // Locale enum with variant for each JSON file
-//! #[derive(Copy, Clone, Debug)]
-//! pub enum Locale {
-//!     En,
-//!     Da,
-//! }
-//!
-//! impl Locale {
-//!     // Each string in the locale files becomes a method on `Locale`
-//!     pub fn hello_world(self) -> String {
-//!         match self {
-//!             Locale::Da => format!("Hej, Verden!"),
-//!             Locale::En => format!("Hello, World!"),
-//!         }
-//!     }
-//!
-//!     // Placeholders in strings become arguments to the methods.
-//!     // For strings with multiple placeholders they must be provided in
-//!     // alphabetical order.
-//!     pub fn greeting(self, name_: Name<'_>) -> String {
-//!         match self {
-//!             Locale::Da => format!("Hej {name}", name = name_.0),
-//!             Locale::En => format!("Hello {name}", name = name_.0),
-//!         }
-//!     }
-//! }
-//!
-//! // A placeholder for strings such as `"Hello {name}"`.
-//! pub struct Name<'a>(pub &'a str);
-//!
-//! fn main() {
-//!     assert_eq!("Hello, World!", Locale::En.hello_world());
-//!     assert_eq!("Hej, Verden!", Locale::Da.hello_world());
-//!
-//!     assert_eq!("Hello Bob", Locale::En.greeting(Name("Bob")));
-//!     assert_eq!("Hej Bob", Locale::Da.greeting(Name("Bob")));
-//! }
-//! ```
-//!
-//! It expects all the JSON keys to be lowercase and will replace `-` and `.` with `_`.
-//!
-//! You can set the environment variable `I18N_CODE_GEN_DEBUG` to `1` to have the generated code
-//! printed during compilation. For example: `I18N_CODE_GEN_DEBUG=1 cargo build`.
-//!
-//! ## Customizing placeholders
-//!
-//! By default it will assume you use `{` and `}` for placeholders such as `"Hello {name}"`. That can be
-//! customized like so:
-//!
-//! ```
-//! # use i18n_codegen::i18n;
-//! #
-//! i18n!("tests/locales_with_different_placeholders", open: "%{", close: "}");
-//! #
-//! # fn main() {
-//! #     assert_eq!("Hello Bob", Locale::En.greeting_different_placeholder(PercentPlaceholder("Bob")));
-//! #     assert_eq!("Hej Bob", Locale::Da.greeting_different_placeholder(PercentPlaceholder("Bob")));
-//! # }
-//! ```
-//!
-//! There is currently no support for escaping placeholders.
 
-#![deny(
-    unused_imports,
-    dead_code,
-    unused_variables,
-    unknown_lints,
-    missing_docs,
-    unused_must_use
-)]
+// #![deny(
+//     unused_imports,
+//     dead_code,
+//     unused_variables,
+//     unknown_lints,
+//     missing_docs,
+//     unused_must_use
+// )]
 #![doc(html_root_url = "https://docs.rs/i18n_codegen/0.1.1")]
 
-extern crate proc_macro;
-extern crate proc_macro2;
+// extern crate proc_macro;
+// extern crate proc_macro2;
 
 mod error;
 mod placeholder_parsing;
@@ -132,67 +30,56 @@ use std::{
     collections::{HashMap, HashSet},
     path::PathBuf,
 };
-use syn::{
-    meta::ParseNestedMeta, parse_macro_input, DeriveInput, LitStr
-};
+use syn::{Attribute, DeriveInput, Expr, LitStr};
 use utils::{locale_name_from_translations_file_path, parse_translations_file};
 
 
-#[derive(Default)]
-struct I18nAttributes {
-    folder: Option<LitStr>,
-    start: Option<LitStr>,
-    end: Option<LitStr>,
-}
-impl I18nAttributes {
-    fn parse(&mut self, meta: ParseNestedMeta) -> syn::parse::Result<()> {
-        if meta.path.is_ident("folder") {
-            self.folder = Some(meta.value()?.parse()?);
-            Ok(())
-        } else if meta.path.is_ident("start") {
-            self.start = Some(meta.value()?.parse()?);
-            Ok(())
-        } else if meta.path.is_ident("end") {
-            self.end = Some(meta.value()?.parse()?);
-            Ok(())
-        } else {
-            Err(meta.error("unsupported tea property"))
-        }
-    }
-}
+/// Generates the code for the `Locale` enum and the `Locale::hello_world()` methods.
+#[proc_macro_derive(I18N, attributes(i18n))]
+pub fn try_i18n(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let DeriveInput { attrs, ident, .. } = syn::parse_macro_input!(input);
 
-/// This is a dummy derive macro that is used to make `#[derive(I18N)]` work.
-#[proc_macro_attribute]
-pub fn i18n(
-    args: proc_macro::TokenStream,
-    item: proc_macro::TokenStream,
-) -> proc_macro::TokenStream {
-    let mut attrs = I18nAttributes::default();
-    let i18n_parser = syn::meta::parser(|meta| attrs.parse(meta));
-
-    parse_macro_input!(args with i18n_parser);
-
-    let _input = parse_macro_input!(item as DeriveInput);
-
-    if attrs.folder.is_none() {
-        panic!("missing folder path")
-    }
-    let folder = attrs.folder.unwrap().value();
-    let start = attrs.start.map(|v| v.value()).unwrap_or("{".into());
-    let end = attrs.end.map(|v| v.value()).unwrap_or("}".into());
-
-    let config = Config {
-        open: start,
-        close: end,
-    };
-
-    match try_i18n_with_folder(&folder, &config) {
+    match try_i18n_with_folder2(ident, attrs) {
         Ok(tokens) => tokens,
         Err(err) => panic!("{}", err),
     }
 }
+fn try_i18n_with_folder2(ident: Ident, attrs: Vec<Attribute>) -> Result<proc_macro::TokenStream> {
+    let mut folder = None;
+    let mut start = None;
+    let mut end = None;
 
-fn try_i18n_with_folder(folder: &str, config: &Config) -> Result<proc_macro::TokenStream> {
+    attrs
+        .iter()
+        .filter(|attribute| attribute.path().is_ident("i18n"))
+        .try_for_each(|attr| {
+            attr.parse_nested_meta(|meta| {
+                if meta.path.is_ident("folder") {
+                    folder = Some(meta.value()?.parse::<LitStr>()?);
+                } else if meta.path.is_ident("start") {
+                    start = Some(meta.value()?.parse::<LitStr>()?);
+                } else if meta.path.is_ident("end") {
+                    end = Some(meta.value()?.parse::<LitStr>()?);
+                } else {
+                    let _: Option<Expr> = meta.value().and_then(|v| v.parse()).ok();
+                }
+
+                Ok(())
+            })
+        })?;
+    let folder = folder.map(|x| x.value()).ok_or_else(|| {
+        syn::Error::new(
+            ident.span(),
+            "expected #[i18n(...)] attribute to be present when used with Locale derive trait",
+        )
+    })?;
+
+    let start = start.map(|x| x.value()).unwrap_or("{".into());
+    let end = end.map(|x| x.value()).unwrap_or("}".into());
+    let config = Config {
+        open: start,
+        close: end,
+    };
 
     let file_paths = crate::utils::find_locale_files(folder)?;
 
@@ -203,100 +90,19 @@ fn try_i18n_with_folder(folder: &str, config: &Config) -> Result<proc_macro::Tok
             Ok((path, contents))
         })
         .collect::<Result<Vec<_>, Error>>()?;
-    let translations = build_translations_from_files(&paths_and_contents, config)?;
+    let translations = build_translations_from_files(&paths_and_contents, &config)?;
     validate_translations(&translations)?;
     let locales = build_locale_names_from_files(&file_paths)?;
 
     let mut output = TokenStream::new();
     gen_code(locales, translations, &mut output);
-
     let syntax_tree: syn::File = syn::parse2(output.clone()).unwrap();
     let pretty = prettyplease::unparse(&syntax_tree);
-    
+
     std::fs::write("example_path.rs", pretty)?;
     Ok(output.into())
 }
 
-/// See root module for more info.
-// #[proc_macro]
-// pub fn i18n(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-//     let input = match syn::parse::<Input>(input) {
-//         Ok(input) => input,
-//         Err(err) => return err.to_compile_error().into(),
-//     };
-
-//     match try_i18n(input) {
-//         Ok(tokens) => tokens,
-//         Err(err) => panic!("{}", err),
-//     }
-// }
-
-// fn try_i18n(input: Input) -> Result<proc_macro::TokenStream> {
-//     let file_paths = find_locale_files(&input.filename)?;
-
-//     let paths_and_contents = file_paths
-//         .iter()
-//         .map(|path| {
-//             let contents = std::fs::read_to_string(path)?;
-//             Ok((path, contents))
-//         })
-//         .collect::<Result<Vec<_>, Error>>()?;
-
-//     let translations = build_translations_from_files(&paths_and_contents, &input.config)?;
-//     validate_translations(&translations)?;
-//     let locales = build_locale_names_from_files(&file_paths)?;
-
-//     let mut output = TokenStream::new();
-//     gen_code(locales, translations, &mut output);
-
-//     if env::var("I18N_CODE_GEN_DEBUG").ok() == Some("1".to_string()) {
-//         println!("{}", output);
-//     }
-
-//     Ok(output.into())
-// }
-
-// #[derive(Debug)]
-// struct Input {
-//     filename: String,
-//     config: Config,
-// }
-
-// impl Parse for Input {
-//     fn parse(input: ParseStream) -> parse::Result<Self> {
-//         let filename = input.parse::<syn::LitStr>()?.value();
-
-//         let config = if input.peek(Token![,]) {
-//             input.parse::<Token![,]>()?;
-
-//             let open_ident = input.parse::<syn::Ident>()?;
-//             if open_ident != "open" {
-//                 return Err(syn::Error::new(open_ident.span(), "expected `open`"));
-//             }
-
-//             input.parse::<Token![:]>()?;
-//             let open = input.parse::<syn::LitStr>()?.value();
-//             input.parse::<Token![,]>()?;
-
-//             let close_ident = input.parse::<syn::Ident>()?;
-//             if close_ident != "close" {
-//                 return Err(syn::Error::new(close_ident.span(), "expected `close`"));
-//             }
-//             input.parse::<Token![:]>()?;
-//             let close = input.parse::<syn::LitStr>()?.value();
-
-//             if input.peek(Token![,]) {
-//                 input.parse::<Token![,]>()?;
-//             }
-
-//             Config { open, close }
-//         } else {
-//             Config::default()
-//         };
-
-//         Ok(Input { filename, config })
-//     }
-// }
 
 fn gen_code(locales: Vec<LocaleName>, translations: Translations, out: &mut TokenStream) {
     gen_locale_enum(locales, out);
@@ -492,37 +298,6 @@ fn keys_per_locale(translations: &Translations) -> HashMap<&LocaleName, HashSet<
     acc
 }
 
-// const CARGO_MANIFEST_DIR: &str = "CARGO_MANIFEST_DIR";
-
-// fn find_locale_files<P: AsRef<Path>>(locales_path: P) -> Result<Vec<PathBuf>> {
-//     let cargo_dir =
-//         std::env::var(CARGO_MANIFEST_DIR).map_err(Error::missing_env_var(CARGO_MANIFEST_DIR))?;
-
-//     let pwd = PathBuf::from(cargo_dir);
-//     let full_locales_path = pwd.join(locales_path);
-
-//     let paths = std::fs::read_dir(full_locales_path)?
-//         .map(|entry| {
-//             let entry = entry?;
-//             let path = entry.path();
-
-//             if path.is_dir() {
-//                 Err(Error::DirectoryInLocalesFolder)
-//             } else {
-//                 Ok(path)
-//             }
-//         })
-//         .filter(|path| match path {
-//             Ok(path) => path
-//                 .extension()
-//                 .map(|ext| ext == "json")
-//                 .unwrap_or_else(|| false),
-//             // don't throw errors away
-//             Err(_) => true,
-//         })
-//         .collect::<Result<_, Error>>()?;
-//     Ok(paths)
-// }
 
 fn build_keys_from_json(
     map: HashMap<&str, String>,
@@ -550,17 +325,6 @@ mod test {
 
     #[allow(unused_imports)]
     use super::*;
-
-    // #[test]
-    // fn test_find_locale_files() {
-    //     let input = "tests/locales";
-
-    //     let locale_files = find_locale_files(input).unwrap();
-
-    //     assert_eq!(locale_files.len(), 2);
-    //     assert!(locale_files[0].to_str().unwrap().contains("en.json"));
-    //     assert!(locale_files[1].to_str().unwrap().contains("da.json"));
-    // }
 
     #[test]
     fn test_reading_files() {
