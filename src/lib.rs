@@ -20,7 +20,7 @@ mod schema;
 mod utils;
 
 use error::{Error, MissingKeysInLocale, Result};
-use heck::ToUpperCamelCase;
+use heck::{ToLowerCamelCase, ToUpperCamelCase};
 use placeholder_parsing::find_placeholders;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
@@ -32,7 +32,6 @@ use std::{
 };
 use syn::{Attribute, DeriveInput, Expr, LitStr};
 use utils::{locale_name_from_translations_file_path, parse_translations_file};
-
 
 /// Generates the code for the `Locale` enum and the `Locale::hello_world()` methods.
 #[proc_macro_derive(I18N, attributes(i18n))]
@@ -95,7 +94,7 @@ fn try_i18n_with_folder2(ident: Ident, attrs: Vec<Attribute>) -> Result<proc_mac
     let locales = build_locale_names_from_files(&file_paths)?;
 
     let mut output = TokenStream::new();
-    gen_code(locales, translations, &mut output);
+    gen_code(ident, locales, translations, &mut output);
     let syntax_tree: syn::File = syn::parse2(output.clone()).unwrap();
     let pretty = prettyplease::unparse(&syntax_tree);
 
@@ -103,13 +102,41 @@ fn try_i18n_with_folder2(ident: Ident, attrs: Vec<Attribute>) -> Result<proc_mac
     Ok(output.into())
 }
 
-
-fn gen_code(locales: Vec<LocaleName>, translations: Translations, out: &mut TokenStream) {
-    gen_locale_enum(locales, out);
+fn gen_code(
+    ident: Ident,
+    locales: Vec<LocaleName>,
+    translations: Translations,
+    out: &mut TokenStream,
+) {
+    gen_impl_internationalize(&locales, out);
+    gen_locale_enum(&locales, out);
     gen_i18n_struct(translations, out);
+    out.extend(quote! {
+        impl Internationalize for #ident {}
+    })
 }
 
-fn gen_locale_enum(locales: Vec<LocaleName>, out: &mut TokenStream) {
+fn gen_impl_internationalize(locales: &[LocaleName], out: &mut TokenStream) {
+    let variants = locales.iter().map(|key| ident(&key.0));
+    let fn_names = locales
+        .iter()
+        .map(|key| ident(&key.0.to_lower_camel_case()));
+
+    let methods = fn_names.zip(variants).map(|(fn_name, variant)| {
+        quote! {
+            fn #fn_name(&self) -> Locale {
+                Locale::#variant
+            }
+        }
+    });
+    out.extend(quote! {
+        pub trait Internationalize {
+            #(#methods)*
+        }
+    });
+}
+
+fn gen_locale_enum(locales: &[LocaleName], out: &mut TokenStream) {
     let variants = locales.iter().map(|key| ident(&key.0));
 
     out.extend(quote! {
@@ -297,7 +324,6 @@ fn keys_per_locale(translations: &Translations) -> HashMap<&LocaleName, HashSet<
 
     acc
 }
-
 
 fn build_keys_from_json(
     map: HashMap<&str, String>,
