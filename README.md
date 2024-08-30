@@ -1,11 +1,14 @@
-# [i18n_codegen](https://crates.io/crates/i18n_codegen)
+# [i18nify](https://github.com/kingzcheung/i18nify)
+[简体中文](./README_CN.md)| English
 
 Internationalization library for Rust based on code generation.
+
+> The original repository https://github.com/davidpdrsn/i18n_codegen was implemented by David Pedersen. However, it has some outdated dependencies and has not been maintained for as long as five years.
 
 By leveraging code generation we are able to prevent common bugs like typos in i18n keys,
 missing interpolations, or various mistakes between locales.
 
-It requires a directory with one JSON file per locale. Here is an example with English and
+It requires a directory (based on `CARGO_MANIFEST_DIR`) with one JSON file per locale. Here is an example with English and
 Danish translations:
 
 ```javascript
@@ -24,18 +27,31 @@ Danish translations:
 
 And in Rust:
 
-```rust
-use i18n_codegen::i18n;
 
-i18n!("tests/doc_locales");
+```
+在 `Rust` 中：
+```rust
+use demo::Internationalize;
+
+mod demo {
+    use i18nify::I18N;
+    #[derive(I18N)]
+    #[i18n(folder = "tests/doc_locales")]
+    pub struct DocLocale;
+
+}
 
 fn main() {
-    assert_eq!("Hello, World!", Locale::En.hello_world());
-    assert_eq!("Hej, Verden!", Locale::Da.hello_world());
+    // 基于 Locale 枚举类型获取国际化文本
+    let hello = demo::Locale::En.hello();
+    assert_eq!("Hello, World!",hello);
+    println!("{}",hello);
 
-    assert_eq!("Hello Bob", Locale::En.greeting(Name("Bob")));
-    assert_eq!("Hej Bob", Locale::Da.greeting(Name("Bob")));
+    // 基于 `DocLocale` 实现的`Internationalize` trait 获取国际化文本
+    let hello = demo::DocLocale.da().hello();
+    println!("{}",hello);
 }
+
 ```
 
 You can find more details on <https://docs.rs/i18n_codegen>.

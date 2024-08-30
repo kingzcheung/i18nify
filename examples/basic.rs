@@ -1,10 +1,7 @@
 use demo::Internationalize;
 
 mod demo {
-    use i18n_codegen::I18N;
-
-    
-
+    use i18nify::I18N;
     #[derive(I18N)]
     #[i18n(folder = "tests/locales")]
     pub struct DocLocale;

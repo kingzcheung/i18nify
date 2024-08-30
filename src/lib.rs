@@ -1,15 +1,14 @@
 //! Internationalization library based on code generation.
 //!
-
-// #![deny(
-//     unused_imports,
-//     dead_code,
-//     unused_variables,
-//     unknown_lints,
-//     missing_docs,
-//     unused_must_use
-// )]
-#![doc(html_root_url = "https://docs.rs/i18n_codegen/0.1.1")]
+#![deny(
+    unused_imports,
+    dead_code,
+    unused_variables,
+    unknown_lints,
+    missing_docs,
+    unused_must_use
+)]
+#![doc(html_root_url = "https://docs.rs/i18n_codegen/0.2")]
 
 // extern crate proc_macro;
 // extern crate proc_macro2;
@@ -28,7 +27,7 @@ use rayon::prelude::*;
 use schema::{Config, I18nKey, Key, LocaleName, Placeholders, Translation, Translations};
 use std::{
     collections::{HashMap, HashSet},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 use syn::{Attribute, DeriveInput, Expr, LitStr};
 use utils::{locale_name_from_translations_file_path, parse_translations_file};
@@ -72,6 +71,14 @@ fn try_i18n_with_folder2(ident: Ident, attrs: Vec<Attribute>) -> Result<proc_mac
             "expected #[i18n(...)] attribute to be present when used with Locale derive trait",
         )
     })?;
+    let crate_root_path = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let locale_folder = crate_root_path.join(folder);
+    if !locale_folder.is_dir() || !locale_folder.exists() {
+        return Err(error::Error::ProcMacroInput(syn::Error::new(
+            ident.span(),
+            "`folder` must be a relative path under `compression` feature.",
+        )));
+    }
 
     let start = start.map(|x| x.value()).unwrap_or("{".into());
     let end = end.map(|x| x.value()).unwrap_or("}".into());
@@ -80,7 +87,7 @@ fn try_i18n_with_folder2(ident: Ident, attrs: Vec<Attribute>) -> Result<proc_mac
         close: end,
     };
 
-    let file_paths = crate::utils::find_locale_files(folder)?;
+    let file_paths = crate::utils::find_locale_files(locale_folder)?;
 
     let paths_and_contents = file_paths
         .iter()
@@ -95,10 +102,9 @@ fn try_i18n_with_folder2(ident: Ident, attrs: Vec<Attribute>) -> Result<proc_mac
 
     let mut output = TokenStream::new();
     gen_code(ident, locales, translations, &mut output);
-    let syntax_tree: syn::File = syn::parse2(output.clone()).unwrap();
-    let pretty = prettyplease::unparse(&syntax_tree);
+    // let syntax_tree: syn::File = syn::parse2(output.clone()).unwrap();
+    // let pretty = prettyplease::unparse(&syntax_tree);
 
-    std::fs::write("example_path.rs", pretty)?;
     Ok(output.into())
 }
 
