@@ -1,26 +1,27 @@
 # Change Log
 
-All user visible changes to this project will be documented in this file.
-This project adheres to [Semantic Versioning](http://semver.org/), as described
-for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/text/1105-api-evolution.md)
+## Version 0.2.0 (2024-08-30)
+- Removed prettyplease
 
-## Unreleased
+  - Removed prettyplease related features or dependencies.
+- Refactor (i18n_codegen):
 
-### Added
+  - Updated the Cargo.toml file to adjust documentation links and change the version number to 0.2.0.
+  - Updated the README.md file to add missing contributors and adjust example code to reflect the latest changes.
+  - Refactored example_path.rs and src/lib.rs to optimize code generation logic, ensuring correct handling of file paths and attributes.
+  - Fixed error handling logic in src/lib.rs to improve the accuracy of error messages.
 
-N/A
+BREAKING CHANGE: This commit introduces significant refactoring and version updates that may impact dependency resolution and code generation functionality. Please ensure thorough testing before upgrading.
+- Implemented internationalization traits and adjusted locality methods (i18n_codegen):
 
-### Changed
+  - Implemented internationalization traits and adjusted locality methods.
+- Optimized the code generator and attribute parsing (i18n):
 
-N/A
-
-### Removed
-
-N/A
-
-### Fixed
-
-N/A
+  - Optimized the code generator and improved attribute parsing.
+- Improved error handling and macro parsing (i18n_codegen):
+  - Improved error handling and optimized macro parsing.
+- Updated dependencies (i18ncodegen):
+  - Updated related dependencies.
 
 ## 0.1.1 - 2019-09-29
 

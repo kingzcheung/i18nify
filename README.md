@@ -42,12 +42,12 @@ mod demo {
 }
 
 fn main() {
-    // 基于 Locale 枚举类型获取国际化文本
+    // Based on the `Locale` enum type to retrieve internationalized text
     let hello = demo::Locale::En.hello();
     assert_eq!("Hello, World!",hello);
     println!("{}",hello);
 
-    // 基于 `DocLocale` 实现的`Internationalize` trait 获取国际化文本
+    // Based on the `Internationalize` trait implemented with `DocLocale` to retrieve internationalized text
     let hello = demo::DocLocale.da().hello();
     println!("{}",hello);
 }
