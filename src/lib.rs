@@ -19,7 +19,7 @@ mod schema;
 mod utils;
 
 use error::{Error, MissingKeysInLocale, Result};
-use heck::{ToLowerCamelCase, ToUpperCamelCase};
+use heck::{ToLowerCamelCase, ToSnakeCase, ToUpperCamelCase};
 use placeholder_parsing::find_placeholders;
 use proc_macro2::{Ident, Span, TokenStream};
 use quote::quote;
@@ -129,6 +129,7 @@ fn gen_impl_internationalize(locales: &[LocaleName], out: &mut TokenStream) {
         .map(|key| ident(&key.0.to_lower_camel_case()));
 
     let methods = fn_names.zip(variants).map(|(fn_name, variant)| {
+        let fn_name = ident(&fn_name.to_string().to_snake_case());
         quote! {
             fn #fn_name(&self) -> Locale {
                 Locale::#variant
