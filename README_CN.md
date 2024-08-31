@@ -3,7 +3,7 @@
 
 [i18nify](https://github.com/kingzcheung/i18nify) 是一款基于代码生成的 `Rust` 国际化库。
 
-> 原仓库 [https://github.com/davidpdrsn/i18n_codegen](https://github.com/davidpdrsn/i18n_codegen) 是 [David Pedersen](https://github.com/davidpdrsn) 实现的。然而它有一些老旧的依赖，并且已经长达5年不维护。
+> 原仓库 [https://github.com/davidpdrsn/i18nify](https://github.com/davidpdrsn/i18nify) 是 [David Pedersen](https://github.com/davidpdrsn) 实现的。然而它有一些老旧的依赖，并且已经长达5年不维护。
 
 通过利用代码生成，我们能够防止代码中的拼写错误、缺少插值或各语言环境之间各种错误的常见问题。
 

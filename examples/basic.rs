@@ -14,4 +14,7 @@ fn main() {
 
     let hello = demo::DocLocale.zh_cn().hello_world();
     println!("{}",hello);
+
+    let addr = demo::DocLocale.zh_cn().addressed_email(demo::Name("kingzcheung@gmail.com"));
+    println!("{addr}");
 }

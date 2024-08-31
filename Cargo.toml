@@ -4,13 +4,13 @@ categories = ["web-programming"]
 description = "Safe localization library using code generation"
 documentation = "https://docs.rs/i18nify"
 edition = "2021"
-homepage = "https://github.com/kingzcheung/i18n_codegen"
+homepage = "https://github.com/kingzcheung/i18nify"
 keywords = ["web", "i18n", "localization", "translation"]
 license = "MIT"
 name = "i18nify"
 readme = "README.md"
-repository = "https://github.com/kingzcheung/i18n_codegen.git"
-version = "0.2.0"
+repository = "https://github.com/kingzcheung/i18nify.git"
+version = "0.2.1"
 
 [dependencies]
 syn = {version="2.0.76", features = ["derive"] }

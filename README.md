@@ -3,7 +3,7 @@
 
 Internationalization library for Rust based on code generation.
 
-> The original repository https://github.com/davidpdrsn/i18n_codegen was implemented by David Pedersen. However, it has some outdated dependencies and has not been maintained for as long as five years.
+> The original repository https://github.com/davidpdrsn/i18nify was implemented by David Pedersen. However, it has some outdated dependencies and has not been maintained for as long as five years.
 
 By leveraging code generation we are able to prevent common bugs like typos in i18n keys,
 missing interpolations, or various mistakes between locales.
@@ -29,7 +29,7 @@ And in Rust:
 
 
 ```
-在 `Rust` 中：
+In `Rust` ：
 ```rust
 use demo::Internationalize;
 
@@ -54,4 +54,4 @@ fn main() {
 
 ```
 
-You can find more details on <https://docs.rs/i18n_codegen>.
+You can find more details on <https://docs.rs/i18nify>.
