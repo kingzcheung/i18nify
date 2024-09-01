@@ -1,11 +1,11 @@
 [package]
 authors = ["David Pedersen <david.pdrsn@gmail.com>","Kingz Cheung <kingzcheung@gmail.com>"]
-categories = ["web-programming"]
-description = "Safe localization library using code generation"
+categories = ["web-programming","Internationalization (i18n)"]
+description = "A type-safe localization library using code generation"
 documentation = "https://docs.rs/i18nify"
 edition = "2021"
 homepage = "https://github.com/kingzcheung/i18nify"
-keywords = ["web", "i18n", "localization", "translation"]
+keywords = ["web", "i18n", "localization", "translation","Internationalisation","intl","type-safe"]
 license = "MIT"
 name = "i18nify"
 readme = "README.md"
