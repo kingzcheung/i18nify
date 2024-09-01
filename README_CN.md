@@ -1,6 +1,9 @@
 # [i18nify](https://github.com/kingzcheung/i18nify)
 简体中文| [English](./README.md)
 
+[![crates.io](https://img.shields.io/crates/v/i18nify.svg)](https://crates.io/crates/i18nify) [![Documentation](https://docs.rs/i18nify/badge.svg)](https://docs.rs/i18nify)
+
+
 [i18nify](https://github.com/kingzcheung/i18nify) 是一款基于代码生成的 `Rust` 国际化库。
 
 > 原仓库 [https://github.com/davidpdrsn/i18nify](https://github.com/davidpdrsn/i18nify) 是 [David Pedersen](https://github.com/davidpdrsn) 实现的。然而它有一些老旧的依赖，并且已经长达5年不维护。
