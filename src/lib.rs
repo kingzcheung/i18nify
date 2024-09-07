@@ -201,6 +201,8 @@ fn gen_code(
     })
 }
 
+
+
 fn gen_impl_internationalize(locales: &[LocaleName], out: &mut TokenStream) {
     let variants = locales.iter().map(|key| ident(&key.0));
     let fn_names = locales
@@ -465,28 +467,6 @@ mod test {
         assert_eq!(locale_name.0, "En");
     }
 
-    // #[test]
-    // fn test_building_translations() {
-    //     let input = "tests/locales";
-    //     let locale_files = find_locale_files(input).unwrap();
-
-    //     let paths_and_contents = locale_files
-    //         .iter()
-    //         .map(|path| {
-    //             let contents = std::fs::read_to_string(path).expect("read file");
-    //             (path, contents)
-    //         })
-    //         .collect::<Vec<_>>();
-
-    //     let translations =
-    //         build_translations_from_files(&paths_and_contents, &Config::default()).unwrap();
-
-    //     assert_eq!(
-    //         (translations[&Key("greeting".to_string())][&LocaleName("En".to_string())].0).0,
-    //         "Hello {name}",
-    //     );
-    // }
-
     #[test]
     fn ui() {
         let t = trybuild::TestCases::new();
@@ -500,5 +480,28 @@ mod test {
 
     fn to_vec<T: std::hash::Hash + Eq>(set: HashSet<T>) -> Vec<T> {
         set.into_iter().collect()
+    }
+
+    #[test]
+    fn test_build_locale_names_from_files()->Result<(), Box<dyn std::error::Error>> {
+
+        let file_paths = &[
+            ("zh_cn",PathBuf::from("tests/zh_locales/zh_CN.json")),
+           ("en",PathBuf::from("tests/zh_locales/en.json")),
+        ];
+
+        let paths = file_paths.iter().map(|f| f.1.clone()).collect::<Vec<_>>();
+        let names = file_paths.iter().map(|f| f.0.to_string()).collect::<Vec<_>>();
+
+        let locales = super::build_locale_names_from_files(&paths).unwrap();
+        locales
+        .iter()
+        .enumerate()
+        // .map(|key| ident(&key.0.to_lower_camel_case())).collect::<Vec<_>>();
+        .for_each(|(index,name)| {
+            assert_eq!(name.0.to_snake_case(),names[index])
+        });
+
+        Ok(())
     }
 }
