@@ -115,7 +115,7 @@ use utils::{locale_name_from_translations_file_path, parse_translations_file};
 #[proc_macro_derive(I18N, attributes(i18n))]
 pub fn try_i18n(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let DeriveInput { attrs, ident, .. } = syn::parse_macro_input!(input);
-
+    
     match try_i18n_with_folder2(ident, attrs) {
         Ok(tokens) => tokens,
         Err(err) => panic!("{}", err),
@@ -125,7 +125,7 @@ fn try_i18n_with_folder2(ident: Ident, attrs: Vec<Attribute>) -> Result<proc_mac
     let mut folder = None;
     let mut start = None;
     let mut end = None;
-
+    
     attrs
         .iter()
         .filter(|attribute| attribute.path().is_ident("i18n"))
@@ -150,6 +150,7 @@ fn try_i18n_with_folder2(ident: Ident, attrs: Vec<Attribute>) -> Result<proc_mac
             "expected #[i18n(...)] attribute to be present when used with Locale derive trait",
         )
     })?;
+    
     let crate_root_path = Path::new(env!("CARGO_MANIFEST_DIR"));
     let locale_folder = crate_root_path.join(folder);
     if !locale_folder.is_dir() || !locale_folder.exists() {
@@ -165,9 +166,9 @@ fn try_i18n_with_folder2(ident: Ident, attrs: Vec<Attribute>) -> Result<proc_mac
         open: start,
         close: end,
     };
-
+    
     let file_paths = crate::utils::find_locale_files(locale_folder)?;
-
+    
     let paths_and_contents = file_paths
         .iter()
         .map(|path| {
@@ -175,10 +176,12 @@ fn try_i18n_with_folder2(ident: Ident, attrs: Vec<Attribute>) -> Result<proc_mac
             Ok((path, contents))
         })
         .collect::<Result<Vec<_>, Error>>()?;
+    
     let translations = build_translations_from_files(&paths_and_contents, &config)?;
     validate_translations(&translations)?;
+    
     let locales = build_locale_names_from_files(&file_paths)?;
-
+    
     let mut output = TokenStream::new();
     gen_code(ident, locales, translations, &mut output);
     // let syntax_tree: syn::File = syn::parse2(output.clone()).unwrap();
@@ -328,12 +331,14 @@ fn build_translations_from_files(
     paths_and_contents: &[(&PathBuf, String)],
     config: &Config,
 ) -> Result<Translations> {
+    
     let keys_per_locale = paths_and_contents
         .iter()
         .map(|(path, contents)| {
             let locale_name = locale_name_from_translations_file_path(path)?;
-
+            dbg!(&locale_name);
             let map = parse_translations_file(contents)?;
+            
             let keys_in_file = build_keys_from_json(map, config, &locale_name)?;
 
             let locale_and_keys = keys_in_file
@@ -413,7 +418,7 @@ fn keys_per_locale(translations: &Translations) -> HashMap<&LocaleName, HashSet<
 }
 
 fn build_keys_from_json(
-    map: HashMap<&str, String>,
+    map: HashMap<String, String>,
     config: &Config,
     locale_name: &LocaleName,
 ) -> Result<Vec<I18nKey>> {
@@ -432,6 +437,14 @@ fn build_keys_from_json(
         .collect()
 }
 
+#[allow(
+    unused_imports,
+    dead_code,
+    unused_variables,
+    unknown_lints,
+    missing_docs,
+    unused_must_use
+)]
 #[cfg(test)]
 mod test {
     use std::path::Path;
@@ -440,6 +453,7 @@ mod test {
     use super::*;
 
     #[test]
+    #[cfg(feature="json")]
     fn test_reading_files() {
         let input = "tests/locales";
         let crate_root_path = Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -457,6 +471,7 @@ mod test {
     }
 
     #[test]
+    #[cfg(feature="json")]
     fn test_finding_locale_names() {
         let input = "tests/locales";
         let crate_root_path = Path::new(env!("CARGO_MANIFEST_DIR"));
@@ -483,11 +498,36 @@ mod test {
     }
 
     #[test]
+    #[cfg(feature="json")]
     fn test_build_locale_names_from_files()->Result<(), Box<dyn std::error::Error>> {
 
         let file_paths = &[
             ("zh_cn",PathBuf::from("tests/zh_locales/zh_CN.json")),
            ("en",PathBuf::from("tests/zh_locales/en.json")),
+        ];
+
+        let paths = file_paths.iter().map(|f| f.1.clone()).collect::<Vec<_>>();
+        let names = file_paths.iter().map(|f| f.0.to_string()).collect::<Vec<_>>();
+
+        let locales = super::build_locale_names_from_files(&paths).unwrap();
+        locales
+        .iter()
+        .enumerate()
+        // .map(|key| ident(&key.0.to_lower_camel_case())).collect::<Vec<_>>();
+        .for_each(|(index,name)| {
+            assert_eq!(name.0.to_snake_case(),names[index])
+        });
+
+        Ok(())
+    }
+
+    #[test]
+    #[cfg(feature="toml")]
+    fn test_build_locale_names_from_files()->Result<(), Box<dyn std::error::Error>> {
+
+        let file_paths = &[
+            ("zh_cn",PathBuf::from("tests/toml_locales/zh_CN.toml")),
+           ("en",PathBuf::from("tests/toml_locales/en.toml")),
         ];
 
         let paths = file_paths.iter().map(|f| f.1.clone()).collect::<Vec<_>>();

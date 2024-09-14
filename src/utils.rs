@@ -1,11 +1,23 @@
-
-use crate::{error::{Error, Result}, schema::LocaleName};
-use std::{collections::HashMap, path::{Path, PathBuf}};
+use crate::{
+    error::{Error, Result},
+    schema::LocaleName,
+};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 pub(crate) fn find_locale_files<P>(full_locales_path: P) -> Result<Vec<PathBuf>>
 where
     P: AsRef<Path>,
 {
+    let file_ext = if cfg!(feature = "json") {
+        "json"
+    } else if cfg!(feature = "toml") {
+        "toml"
+    } else {
+        "json"
+    };
     let paths = std::fs::read_dir(full_locales_path)?
         .map(|entry| {
             let entry = entry?;
@@ -20,7 +32,7 @@ where
         .filter(|path| match path {
             Ok(path) => path
                 .extension()
-                .map(|ext| ext == "json")
+                .map(|ext| ext == file_ext)
                 .unwrap_or_else(|| false),
             // don't throw errors away
             Err(_) => true,
@@ -48,6 +60,28 @@ pub(crate) fn uppercase_first_letter(s: &str) -> String {
     }
 }
 
-pub(crate) fn parse_translations_file(contents: &str) -> Result<HashMap<&str, String>> {
+#[cfg(feature = "json")]
+pub(crate) fn parse_translations_file(contents: &str) -> Result<HashMap<String, String>> {
     serde_json::from_str(contents).map_err(From::from)
+}
+
+#[cfg(feature = "toml")]
+pub(crate) fn parse_translations_file(contents: &str) -> Result<HashMap<String, String>> {
+    toml::from_str(contents).map_err(crate::Error::TomlParsing)
+}
+
+#[cfg(feature = "toml")]
+#[cfg(test)]
+mod test {
+
+    #[test]
+    fn test_parse_translations_file() {
+        let contents = r#"
+        hello_world = "Hello, World!"
+        greeting = "Hello {name}"
+        "#;
+        let r = super::parse_translations_file(contents).unwrap();
+        assert!(r.contains_key("hello_world"));
+        assert!(r.contains_key("greeting"));
+    }
 }

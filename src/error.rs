@@ -7,8 +7,12 @@ pub(crate) type Result<T, E = Error> = std::result::Result<T, E>;
 
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum Error {
+    #[cfg(feature = "json")]
     #[error("{0}")]
     JsonParsing(#[from] serde_json::error::Error),
+    #[cfg(feature = "toml")]
+    #[error("{0}")]
+    TomlParsing(#[from] toml::de::Error),
     #[error("{0}")]
     ProcMacroInput(#[from] syn::Error),
     #[error("{0}")]

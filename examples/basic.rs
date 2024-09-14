@@ -1,3 +1,5 @@
+#![cfg(feature="json")]
+
 use demo::Internationalize;
 
 mod demo {
