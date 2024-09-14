@@ -1,6 +1,6 @@
 [package]
 authors = ["David Pedersen <david.pdrsn@gmail.com>","Kingz Cheung <kingzcheung@gmail.com>"]
-categories = ["web-programming","Internationalization (i18n)"]
+categories = ["web-programming","Internationalization"]
 description = "A type-safe localization library using code generation"
 documentation = "https://docs.rs/i18nify"
 edition = "2021"
