@@ -35,7 +35,7 @@ proc-macro = true
 
 
 [features]
-default = ["toml"]
+default = ["json"]
 json = ["serde_json"]
 toml = ["dep:toml"]
 
