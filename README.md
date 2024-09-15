@@ -6,10 +6,24 @@
 
 Internationalization library for Rust based on code generation.
 
-> The original repository https://github.com/davidpdrsn/i18nify was implemented by David Pedersen. However, it has some outdated dependencies and has not been maintained for as long as five years.
+> The original repository https://github.com/davidpdrsn/i18n_codegen was implemented by David Pedersen. However, it has some outdated dependencies and has not been maintained for as long as five years.
 
 By leveraging code generation we are able to prevent common bugs like typos in i18n keys,
 missing interpolations, or various mistakes between locales.
+
+## Adding
+
+```bash
+cargo add i18nify #default features=['json']
+```
+
+or add `Cargo.toml`:
+
+```bash
+i18nify = { version = "0.3", features = ["json"] } #json
+i18nify = { version = "0.3", features = ["toml"] } #toml
+```
+
 
 It requires a directory (based on `CARGO_MANIFEST_DIR`) with one JSON file per locale. Here is an example with English and
 Danish translations:
@@ -31,8 +45,8 @@ Danish translations:
 And in Rust:
 
 
-```
 In `Rust` ：
+
 ```rust
 use demo::Internationalize;
 

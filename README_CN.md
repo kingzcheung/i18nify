@@ -6,9 +6,22 @@
 
 [i18nify](https://github.com/kingzcheung/i18nify) 是一款基于代码生成的 `Rust` 国际化库。
 
-> 原仓库 [https://github.com/davidpdrsn/i18nify](https://github.com/davidpdrsn/i18nify) 是 [David Pedersen](https://github.com/davidpdrsn) 实现的。然而它有一些老旧的依赖，并且已经长达5年不维护。
+> 原仓库 [https://github.com/davidpdrsn/i18n_codegen](https://github.com/davidpdrsn/i18n_codegen) 是 [David Pedersen](https://github.com/davidpdrsn) 实现的。然而它有一些老旧的依赖，并且已经长达5年不维护。
 
 通过利用代码生成，我们能够防止代码中的拼写错误、缺少插值或各语言环境之间各种错误的常见问题。
+
+## 添加
+
+```
+cargo add i18nify #default features=['json']
+```
+
+or add `Cargo.toml`:
+
+```
+i18nify = { version = "0.3", features = ["json"] } #json
+i18nify = { version = "0.3", features = ["toml"] } #toml
+```
 
 它需要一个目录(目录基于`CARGO_MANIFEST_DIR`)，其中每个语言环境有一个 JSON 文件。以下是一个包含英语和汉语翻译的例子：
 
