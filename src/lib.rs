@@ -150,13 +150,25 @@ fn try_i18n_with_folder2(ident: Ident, attrs: Vec<Attribute>) -> Result<proc_mac
             "expected #[i18n(...)] attribute to be present when used with Locale derive trait",
         )
     })?;
+
+    let folder_path = shellexpand::full(&folder).map_err(|e| syn::Error::new(
+        ident.span(),
+        e.to_string(),
+    ))?.to_string();
+
+    let locale_folder = if Path::new(&folder_path).is_relative() {
+        let crate_root_path = Path::new(env!("CARGO_MANIFEST_DIR"));
+        crate_root_path.join(folder)
+    }else {
+        Path::new(&folder_path).to_path_buf()
+    };
     
-    let crate_root_path = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let locale_folder = crate_root_path.join(folder);
+    println!("{:?}",&locale_folder);
+    
     if !locale_folder.is_dir() || !locale_folder.exists() {
         return Err(error::Error::ProcMacroInput(syn::Error::new(
             ident.span(),
-            "`folder` must be a relative path under `compression` feature.",
+            "`folder` must be a relative path.",
         )));
     }
 

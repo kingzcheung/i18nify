@@ -71,4 +71,18 @@ fn main() {
 
 ```
 
+Allow environment variables to be used in the folder path. Example:
+
+In `Rust` ：
+
+```rust
+use demo::Internationalize;
+
+mod demo {
+    use i18nify::I18N;
+    #[derive(I18N)]
+    #[i18n(folder = "$CARGO_MANIFEST_DIR/tests/doc_locales")]
+    pub struct DocLocale;
+}
+
 You can find more details on <https://docs.rs/i18nify>.

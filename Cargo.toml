@@ -13,19 +13,20 @@ repository = "https://github.com/kingzcheung/i18nify.git"
 version = "0.3.0"
 
 [dependencies]
-syn = {version="2.0.77", features = ["derive"] }
+syn = {version="2.0.82", features = ["derive"] }
 quote = "1.0.37"
-proc-macro2 = "1.0.86"
-serde_json = {version="1.0.128", optional = true }
+proc-macro2 = "1.0.88"
+serde_json = {version="1.0.132", optional = true }
 toml = {version="0.8.19", optional = true }
 heck = "0.5.0"
 rayon = "1.10.0"
-thiserror = "1.0.63"
+thiserror = "1.0.64"
 tinytemplate = "1.1"
 # prettyplease = "0.2.22"
+shellexpand = "3.0"
 
 [dev-dependencies]
-trybuild = "1.0.99"
+trybuild = "1.0.101"
 version-sync = "0.9.5"
 
 [lib]
