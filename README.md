@@ -85,4 +85,5 @@ mod demo {
     pub struct DocLocale;
 }
 
+```
 You can find more details on <https://docs.rs/i18nify>.
