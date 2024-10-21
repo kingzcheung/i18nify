@@ -1,3 +1,6 @@
+[workspace]
+resolver = "2"
+members = ["i18nify-macro"]
 [package]
 authors = ["David Pedersen <david.pdrsn@gmail.com>","Kingz Cheung <kingzcheung@gmail.com>"]
 categories = ["web-programming","internationalization"]
@@ -10,36 +13,25 @@ license = "MIT"
 name = "i18nify"
 readme = "README.md"
 repository = "https://github.com/kingzcheung/i18nify.git"
-version = "0.3.0"
-
-[dependencies]
-syn = {version="2.0.82", features = ["derive"] }
-quote = "1.0.37"
-proc-macro2 = "1.0.88"
-serde_json = {version="1.0.132", optional = true }
-toml = {version="0.8.19", optional = true }
-heck = "0.5.0"
-rayon = "1.10.0"
-thiserror = "1.0.64"
-tinytemplate = "1.1"
-# prettyplease = "0.2.22"
-shellexpand = "3.0"
-
-[dev-dependencies]
-trybuild = "1.0.101"
-version-sync = "0.9.5"
+version = "0.4.0"
+rust-version = "1.70"
 
 [lib]
-proc-macro = true
-# path = "src/lib.rs"
+path = "src/lib.rs"
 
-
+[dependencies]
+i18nify-macro = { version = "0.4.0", path = "i18nify-macro", optional = true }
+axum = { version = "0.7.7", features = ["tokio"], optional = true }
+tokio = { version = "1.0", optional = true, features = ["macros", "rt-multi-thread"] }
+# tower-http = { version = "0.6.1", optional = true }
+futures-util = {version = "0.3.31", optional = true }
+tower = { version = "0.5.1", optional = true }
 
 [features]
-default = ["json"]
-json = ["serde_json"]
-toml = ["dep:toml"]
-
+default = ["json","axum"]
+json = ["i18nify-macro/json"]
+toml = ["i18nify-macro/toml"]
+axum = ["dep:axum","tokio","tower","futures-util"]
 
 [[example]]
 name = "basic"
@@ -50,3 +42,8 @@ required-features = ["json"]
 name = "basic_toml"
 path = "examples/basic_toml.rs"
 required-features = ["toml"]
+
+[[example]]
+name = "axum"
+path = "examples/axum.rs"
+required-features = ["axum"]

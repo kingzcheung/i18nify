@@ -24,6 +24,7 @@ i18nify = { version = "0.3", features = ["json"] } #json
 i18nify = { version = "0.3", features = ["toml"] } #toml
 ```
 
+## Usage
 
 It requires a directory (based on `CARGO_MANIFEST_DIR`) with one JSON file per locale. Here is an example with English and
 Danish translations:
@@ -86,4 +87,43 @@ mod demo {
 }
 
 ```
+
+
+## Using in the `Axum` Framework
+
+First, define an `Internationalization` trait implementation
+
+```rust
+use i18nify::{Internationalization, I18N};
+
+#[derive(I18N, Clone)]
+#[i18n(folder = "$CARGO_MANIFEST_DIR/tests/zh_locales")]
+pub struct DocLocale;
+
+impl Internationalization for DocLocale {
+    type Item = Locale;
+
+    fn i(&self, lang: &str) -> Self::Item {
+        match lang.to_lowercase().as_str() {
+            "en" => Locale::En,
+            "zh-cn" => Locale::ZhCn,
+            _ => Locale::En,
+        }
+    }
+}
+
+Then add the middleware `I18nifyLayer`:
+
+```rust 
+let app = Router::new()
+    .route("/", get(root))
+    .layer(I18nifyLayer::new(DocLocale, "en"));
+```
+Finally, you can use Locale to get internationalized text in your handler
+```rust 
+async fn root(Extension(locale): Extension<Locale>) -> impl IntoResponse {
+    locale.greeting() // Hello, world
+}
+```
+
 You can find more details on <https://docs.rs/i18nify>.

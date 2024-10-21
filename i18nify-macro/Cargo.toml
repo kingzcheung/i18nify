@@ -1,0 +1,43 @@
+[package]
+authors = ["David Pedersen <david.pdrsn@gmail.com>","Kingz Cheung <kingzcheung@gmail.com>"]
+categories = ["web-programming","internationalization"]
+description = "A type-safe localization library using code generation"
+documentation = "https://docs.rs/i18nify"
+edition = "2021"
+homepage = "https://github.com/kingzcheung/i18nify"
+keywords = ["i18n", "localization", "translation","Internationalisation","type-safe"]
+license = "MIT"
+name = "i18nify-macro"
+readme = "README.md"
+repository = "https://github.com/kingzcheung/i18nify.git"
+version = "0.4.0"
+
+[dependencies]
+syn = {version="2.0.82", features = ["derive"] }
+quote = "1.0.37"
+proc-macro2 = "1.0.88"
+serde_json = {version="1.0.132", optional = true }
+toml = {version="0.8.19", optional = true }
+heck = "0.5.0"
+rayon = "1.10.0"
+thiserror = "1.0.64"
+tinytemplate = "1.1"
+# prettyplease = "0.2.22"
+shellexpand = "3.0"
+
+[dev-dependencies]
+trybuild = "1.0.101"
+version-sync = "0.9.5"
+
+[lib]
+proc-macro = true
+# path = "src/lib.rs"
+
+
+
+[features]
+default = ["json"]
+json = ["serde_json"]
+toml = ["dep:toml"]
+
+
