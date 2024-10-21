@@ -112,6 +112,8 @@ impl Internationalization for DocLocale {
     }
 }
 
+```
+
 Then add the middleware `I18nifyLayer`:
 
 ```rust 
