@@ -60,14 +60,22 @@ pub(crate) fn uppercase_first_letter(s: &str) -> String {
     }
 }
 
-#[cfg(feature = "json")]
 pub(crate) fn parse_translations_file(contents: &str) -> Result<HashMap<String, String>> {
-    serde_json::from_str(contents).map_err(From::from)
-}
+    
+    #[cfg(feature = "json")]
+    {
+        serde_json::from_str(contents).map_err(From::from)
+    }
 
-#[cfg(feature = "toml")]
-pub(crate) fn parse_translations_file(contents: &str) -> Result<HashMap<String, String>> {
-    toml::from_str(contents).map_err(crate::Error::TomlParsing)
+    #[cfg(feature = "toml")]
+    {
+        toml::from_str(contents).map_err(crate::Error::TomlParsing)
+    }
+    
+    #[cfg(not(any(feature = "json", feature = "toml")))]
+    {
+        Err(Error::UnsupportedFormat)
+    }
 }
 
 #[cfg(feature = "toml")]

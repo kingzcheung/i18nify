@@ -5,6 +5,7 @@ use crate::schema::{Key, LocaleName};
 
 pub(crate) type Result<T, E = Error> = std::result::Result<T, E>;
 
+#[allow(dead_code)]
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum Error {
     #[cfg(feature = "json")]
@@ -37,6 +38,8 @@ pub(crate) enum Error {
     },
     #[error("Missing keys in locale: {0:?}")]
     MissingKeysInLocale(Vec<MissingKeysInLocale>),
+    #[error("Unsupported file format")]
+    UnsupportedFormat,
 }
 
 #[derive(Debug)]

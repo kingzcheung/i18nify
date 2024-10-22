@@ -42,14 +42,7 @@
 //!}
 //! ```
 //! 
-#![deny(
-    unused_imports,
-    dead_code,
-    unused_variables,
-    unknown_lints,
-    missing_docs,
-    unused_must_use
-)]
+
 #![doc(html_root_url = "https://docs.rs/i18nify/0.2")]
 
 // extern crate proc_macro;

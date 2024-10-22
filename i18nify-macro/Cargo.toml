@@ -10,7 +10,7 @@ license = "MIT"
 name = "i18nify-macro"
 readme = "README.md"
 repository = "https://github.com/kingzcheung/i18nify.git"
-version = "0.4.0"
+version = "0.4.1"
 
 [dependencies]
 syn = {version="2.0.82", features = ["derive"] }
