@@ -43,7 +43,7 @@ enum Token<'a> {
     Char(&'a str),
 }
 
-impl<'a> Token<'a> {
+impl Token<'_> {
     fn is_start(&self) -> bool {
         matches!(self, Token::PlaceholderStart)
     }

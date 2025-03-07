@@ -13,7 +13,7 @@ license = "MIT"
 name = "i18nify"
 readme = "README.md"
 repository = "https://github.com/kingzcheung/i18nify.git"
-version = "0.5.0"
+version = "0.5.1"
 rust-version = "1.70"
 
 [lib]
@@ -22,7 +22,7 @@ path = "src/lib.rs"
 [dependencies]
 i18nify-macro = { version = "0.4.1", path = "i18nify-macro", optional = true, default-features = false }
 axum = { version = "0.8.1", features = ["tokio"], optional = true }
-tokio = { version = "1.42.0", optional = true, features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.43.0", optional = true, features = ["macros", "rt-multi-thread"] }
 # tower-http = { version = "0.6.1", optional = true }
 futures-util = {version = "0.3.31", optional = true }
 tower = { version = "0.5.2", optional = true }
