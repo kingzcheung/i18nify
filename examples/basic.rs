@@ -13,11 +13,11 @@ mod demo {
 
 fn main() {
     let hello = demo::Locale::En.hello_world();
-    println!("{}",hello);
+    println!("{hello}");
     demo::Locale::ZhCn.hello_world();
 
     let hello = demo::DocLocale.zh_cn().hello_world();
-    println!("{}",hello);
+    println!("{hello}");
     
     let addr = demo::DocLocale.zh_cn().addressed_email(demo::Name("kingzcheung@gmail.com"));
     println!("{addr}");

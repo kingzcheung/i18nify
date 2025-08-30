@@ -56,12 +56,12 @@ mod demo {
 
 fn main() {
     // 基于 Locale 枚举类型获取国际化文本
-    let hello = demo::Locale::En.hello();
+    let hello = demo::Locale::En.hello_world();
     assert_eq!("Hello, World!",hello);
     println!("{}",hello);
 
     // 基于 `DocLocale` 实现的`Internationalize` trait 获取国际化文本
-    let hello = demo::DocLocale.da().hello();
+    let hello = demo::DocLocale.da().hello_world();
     println!("{}",hello);
 }
 

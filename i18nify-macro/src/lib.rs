@@ -43,7 +43,7 @@
 //! ```
 //! 
 
-#![doc(html_root_url = "https://docs.rs/i18nify/0.2")]
+#![doc(html_root_url = "https://docs.rs/i18nify/0.5.2")]
 
 // extern crate proc_macro;
 // extern crate proc_macro2;

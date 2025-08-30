@@ -61,12 +61,12 @@ mod demo {
 
 fn main() {
     // Based on the `Locale` enum type to retrieve internationalized text
-    let hello = demo::Locale::En.hello();
+    let hello = demo::Locale::En.hello_world();
     assert_eq!("Hello, World!",hello);
     println!("{}",hello);
 
     // Based on the `Internationalize` trait implemented with `DocLocale` to retrieve internationalized text
-    let hello = demo::DocLocale.da().hello();
+    let hello = demo::DocLocale.da().hello_world();
     println!("{}",hello);
 }
 

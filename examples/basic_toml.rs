@@ -12,9 +12,9 @@ mod demo {
 
 fn main() {
     let hello = demo::Locale::En.hello_world();
-    println!("{}",hello);
+    println!("{hello}");
 
     let hello = demo::TomlLocale.zh_cn().hello_world();
-    println!("{}",hello);
+    println!("{hello}");
 
 }
